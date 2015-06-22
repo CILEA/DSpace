@@ -109,6 +109,20 @@
         </dependency>
         <dependency>
             <groupId>org.dspace</groupId>
+            <artifactId>dspace-cris-jspui-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.dspace</groupId>
+            <artifactId>dspace-cris-api</artifactId>
+            <exclusions>
+            	<exclusion>
+            		<groupId>net.sf.ehcache</groupId>
+            		<artifactId>ehcache-core</artifactId>
+            	</exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.dspace</groupId>
             <artifactId>dspace-api</artifactId>
         </dependency>
         <dependency>

@@ -88,13 +88,21 @@
 
         <dependency>
             <groupId>org.dspace</groupId>
-            <artifactId>dspace-api</artifactId>
+            <artifactId>dspace-cris-api</artifactId>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
                     <artifactId>slf4j-api</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.dspace</groupId>
+            <artifactId>dspace-api</artifactId>
+        </dependency>
+         <dependency>
+            <groupId>org.dspace</groupId>
+            <artifactId>dspace-cris-jspui-api</artifactId>
         </dependency>
 
         <dependency>
