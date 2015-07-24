@@ -26,7 +26,7 @@
 	import="it.cilea.osd.jdyna.model.ADecoratorPropertiesDefinition"%>
 <%@page
 	import="org.dspace.app.cris.model.jdyna.DecoratorRestrictedField"%>
-	
+<%@ page import="org.dspace.core.ConfigurationManager" %>	
 <%@page import="it.cilea.osd.jdyna.model.AccessLevelConstants"%>
 <%@page import="java.net.URL"%>
 <%@page import="org.dspace.eperson.EPerson" %>
@@ -39,7 +39,7 @@
     // Is the logged in user an admin
     Boolean admin = (Boolean)request.getAttribute("is.admin");
     boolean isAdmin = (admin == null ? false : admin.booleanValue());
-
+    boolean changeStatusAdmin = ConfigurationManager.getBooleanProperty("cris","rp.changestatus.admin");
 %>
 <c:set var="root"><%=request.getContextPath()%></c:set>
 <c:set var="admin"><%=isAdmin%></c:set>
@@ -67,11 +67,14 @@
     <link href="<%=request.getContextPath()%>/js/jscalendar/calendar-blue.css" type="text/css" rel="stylesheet" />
     <link rel="stylesheet" href="<%= request.getContextPath() %>/css/commons-edit-jquery-for-cris.css" type="text/css" />
     <link rel="stylesheet" href="<%= request.getContextPath() %>/css/researcher.css" type="text/css" />
-    <link rel="stylesheet" href="<%= request.getContextPath() %>/css/jdyna.css" type="text/css" />               
+    <link rel="stylesheet" href="<%= request.getContextPath() %>/css/jdyna.css" type="text/css" />     
+    <link href="<%= request.getContextPath() %>/css/select2/select2.css" type="text/css" rel="stylesheet" />
+    <link href="<%= request.getContextPath() %>/css/select2/select2-bootstrap.css" type="text/css" rel="stylesheet" />          
 	<script type="text/javascript" src="<%= request.getContextPath() %>/js/jscalendar/calendar.js"> </script>
 	<script type="text/javascript" src="<%= request.getContextPath() %>/js/jscalendar/lang/calendar-en.js"> </script>
 	<script type="text/javascript" src="<%= request.getContextPath() %>/js/jscalendar/calendar-setup.js"> </script>
 	<script type="text/javascript" src="<%= request.getContextPath() %>/js/jquery.form.js"></script>
+	<script type="text/javascript" src="<%=request.getContextPath()%>/js/select2/select2.min.js"></script>
   	<style>
     .ui-autocomplete-loading {
         background: white url('../../../image/jdyna/indicator.gif') right center no-repeat;
@@ -281,6 +284,8 @@
     	
 		j(document).ready(function()
 		{
+			j(".jdynadropdown").select2();
+			
 			j("#alert_eperson_dialog").dialog({ autoOpen: false });
 				
 			 j("#eperson").autocomplete({
@@ -471,8 +476,6 @@
 
 	}
 		
-       
-		 
 		var activeEperson = function(id) {
 			j.ajax({
                 url: "eperson.json",
@@ -571,6 +574,7 @@
 		</spring:bind>
 		</div>
 		</c:if>
+		<% if(!changeStatusAdmin) { %>
 		<div class="col-md-4">	
 		<div class="cris-edit-status">
 		<spring:bind path="status">
@@ -603,6 +607,7 @@
 		</spring:bind>
 		</div>
 		</div>
+		<% } %>
 		<div class="col-md-4">
 		<div class="cris-edit-record-info">
 		<c:set var="disabled" value=" readonly='readonly'"/>

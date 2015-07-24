@@ -14,6 +14,7 @@ import it.cilea.osd.jdyna.value.FileValue;
 import java.beans.PropertyEditor;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -143,6 +144,15 @@ public class ResearcherPage extends
     @Transient
     private Integer oldEpersonID;
 
+    @Transient
+    private String oldOrcidPublicationsPreference;
+    @Transient
+    private String oldOrcidProjectsPreference;
+    @Transient
+    private List<String> oldOrcidProfilePreference;
+    @Transient
+    private Map<String,List<String>> oldMapOrcidProfilePreference;
+    
     /**
      * Constructor method, create new ResearcherPage setting status to true.
      */
@@ -645,6 +655,44 @@ public class ResearcherPage extends
 	@Override
 	public String getMetadataFieldTitle() {
 		return NAME;
+	}
+
+	public String getOldOrcidPublicationsPreference() {
+		return oldOrcidPublicationsPreference;
+	}
+
+	public void setOldOrcidPublicationsPreference(String oldOrcidPublicationsPreference) {
+		this.oldOrcidPublicationsPreference = oldOrcidPublicationsPreference;
+	}
+
+	public String getOldOrcidProjectsPreference() {
+		return oldOrcidProjectsPreference;
+	}
+
+	public void setOldOrcidProjectsPreference(String oldOrcidProjectsPreference) {
+		this.oldOrcidProjectsPreference = oldOrcidProjectsPreference;
+	}
+
+	public List<String> getOldOrcidProfilePreference() {
+		if(this.oldOrcidProfilePreference == null) {
+			this.oldOrcidProfilePreference = new ArrayList<String>();
+		}
+		return oldOrcidProfilePreference;
+	}
+
+	public void setOldOrcidProfilePreference(List<String> oldOrcidProfilePreference) {
+		this.oldOrcidProfilePreference = oldOrcidProfilePreference;
+	}
+
+	public Map<String, List<String>> getOldMapOrcidProfilePreference() {
+		if(oldMapOrcidProfilePreference == null) {
+			oldMapOrcidProfilePreference = new HashMap<String, List<String>>();
+		}
+		return oldMapOrcidProfilePreference;
+	}
+
+	public void setOldMapOrcidProfilePreference(Map<String, List<String>> oldMapOrcidProfilePreference) {
+		this.oldMapOrcidProfilePreference = oldMapOrcidProfilePreference;
 	}
 
 }

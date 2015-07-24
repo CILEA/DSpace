@@ -65,7 +65,7 @@
     }
     
     boolean networkModuleEnabled = ConfigurationManager.getBooleanProperty(NetworkPlugin.CFG_MODULE,"network.enabled");
-    boolean changeStatusAdmin = ConfigurationManager.getBooleanProperty("cris.cfg","rp.changestatus.admin");
+    boolean changeStatusAdmin = ConfigurationManager.getBooleanProperty("cris","rp.changestatus.admin");
 %>
 <c:set var="admin" scope="request"><%=isAdmin%></c:set>
 <c:set var="statusAdmin" scope="request"><%=changeStatusAdmin%></c:set>
@@ -76,8 +76,6 @@
 <c:set var="dspace.layout.head.last" scope="request">
 	
     <script type="text/javascript"><!--
-
-		var j = jQuery;
 
 	    var activeTab = function(){
     		var ajaxurlrelations = "<%=request.getContextPath()%>/cris/${specificPartPath}/viewNested.htm";
@@ -270,8 +268,11 @@
 								<a href="<%= request.getContextPath() %>/cris/tools/rp/editDynamicData.htm?id=${researcher.id}&anagraficaId=${researcher.dynamicField.id}<c:if test='${!empty tabIdForRedirect}'>&tabId=${tabIdForRedirect}</c:if>"><i class="fa fa-pencil-square-o"></i> <fmt:message key="jsp.layout.navbar-hku.staff-mode.edit.primary-data"/></a>
 							</li>
 							<li>
-								<a href="${root}/cris/uuid/${researcher.uuid}/relMgmt/publications"><i class="fa fa-book"></i> <fmt:message key="jsp.layout.navbar-hku.staff-mode.manage-publication"/></a>
+								<a href="${root}/cris/uuid/${researcher.uuid}/relMgmt/publications"><i class="fa fa-book"></i> <fmt:message key="jsp.layout.navbar-hku.staff-mode.manage-publication"/></a>								
 							</li>
+							<li>
+								<a href="${root}/cris/uuid/${researcher.uuid}/relMgmt/projects"><i class="fa fa-book"></i> <fmt:message key="jsp.layout.navbar-hku.staff-mode.manage-project"/></a>								
+							</li>							
 							</c:if>
 							<c:if test="${admin}">				
 								<li>
@@ -301,7 +302,7 @@
 		</div>
 	</div>
 </div>
-	<c:if test="${!entity.status or (!statusAdmin && !admin)}">
+	<c:if test="${(!entity.status && !statusAdmin) or (!entity.status && admin)}">
 		<p class="warning">
 			<fmt:message
 				key="jsp.layout.hku.detail.researcher-disabled" /><a				

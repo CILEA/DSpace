@@ -13,6 +13,7 @@ import it.cilea.osd.jdyna.web.controller.SimpleDynaController;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -29,6 +30,7 @@ import org.dspace.app.cris.model.jdyna.RPAdditionalFieldStorage;
 import org.dspace.app.cris.model.jdyna.RPPropertiesDefinition;
 import org.dspace.app.cris.model.jdyna.RPProperty;
 import org.dspace.app.cris.model.jdyna.TabResearcherPage;
+import org.dspace.app.cris.model.jdyna.VisibilityTabConstant;
 import org.dspace.app.cris.service.ApplicationService;
 import org.dspace.app.cris.service.CrisSubscribeService;
 import org.dspace.app.cris.statistics.util.StatsConfig;
@@ -228,22 +230,31 @@ public class ResearcherPageDetailsController
         {
             return null;
         }
-        // check admin authorization
-        Boolean isAdmin = null; // anonymous access
         Context context = UIUtil.obtainContext(request);
         EPerson currUser = context.getCurrentUser();
-        if (AuthorizeManager.isAdmin(context))
+        // check owner authorization
+        boolean isOwner = currUser != null && researcher.getEpersonID()!=null && (researcher.getEpersonID() == currUser.getID());
+        List<TabResearcherPage> tabs = new LinkedList<TabResearcherPage>();
+        // check admin authorization
+		if (AuthorizeManager.isAdmin(context))
         {
-            isAdmin = true; // admin
+			tabs = applicationService.getTabsByVisibility(
+	                TabResearcherPage.class, true);
+			if(isOwner) {
+		        //admin authorization for LOW tab visibility (LOW are the tab show only to RP owner)
+				tabs.addAll(((ApplicationService)applicationService).getTabsByVisibility(TabResearcherPage.class, VisibilityTabConstant.LOW));
+			}
         }
-        else if ((currUser != null && researcher.getId() == currUser.getID()))
+        else if (isOwner)
         {
-            isAdmin = false; // owner
+        	tabs = applicationService.getTabsByVisibility(
+                    TabResearcherPage.class, false);
+        } else {
+        	//anonymous access
+        	tabs = applicationService.getTabsByVisibility(
+                    TabResearcherPage.class, null);
         }
-        List<TabResearcherPage> tabs = applicationService.getTabsByVisibility(
-                TabResearcherPage.class, isAdmin);
         return tabs;
-
     }
 
     @Override

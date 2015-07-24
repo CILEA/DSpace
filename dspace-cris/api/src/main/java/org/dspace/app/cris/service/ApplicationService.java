@@ -10,6 +10,7 @@ package org.dspace.app.cris.service;
 import it.cilea.osd.common.model.Identifiable;
 import it.cilea.osd.jdyna.dao.ContainableDao;
 import it.cilea.osd.jdyna.dao.PropertyHolderDao;
+import it.cilea.osd.jdyna.dao.TabDao;
 import it.cilea.osd.jdyna.model.ANestedPropertiesDefinition;
 import it.cilea.osd.jdyna.model.ATypeNestedObject;
 import it.cilea.osd.jdyna.model.Containable;
@@ -20,9 +21,11 @@ import it.cilea.osd.jdyna.web.Tab;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
@@ -32,6 +35,8 @@ import org.apache.log4j.Logger;
 import org.dspace.app.cris.dao.CrisObjectDao;
 import org.dspace.app.cris.dao.CrisSubscriptionDao;
 import org.dspace.app.cris.dao.DynamicObjectDao;
+import org.dspace.app.cris.dao.OrcidHistoryDao;
+import org.dspace.app.cris.dao.OrcidQueueDao;
 import org.dspace.app.cris.dao.OrganizationUnitDao;
 import org.dspace.app.cris.dao.ProjectDao;
 import org.dspace.app.cris.dao.RelationPreferenceDao;
@@ -47,7 +52,11 @@ import org.dspace.app.cris.model.ResearchObject;
 import org.dspace.app.cris.model.ResearcherPage;
 import org.dspace.app.cris.model.StatSubscription;
 import org.dspace.app.cris.model.jdyna.DynamicObjectType;
+import org.dspace.app.cris.model.jdyna.RPPropertiesDefinition;
 import org.dspace.app.cris.model.jdyna.RPProperty;
+import org.dspace.app.cris.model.jdyna.TabResearcherPage;
+import org.dspace.app.cris.model.orcid.OrcidHistory;
+import org.dspace.app.cris.model.orcid.OrcidQueue;
 import org.dspace.app.cris.model.ws.User;
 import org.dspace.app.cris.util.ResearcherPageUtils;
 import org.dspace.core.ConfigurationManager;
@@ -78,6 +87,10 @@ public class ApplicationService extends ExtendedTabService
 
     private UserWSDao userWSDao;
 
+    private OrcidQueueDao orcidQueueDao;
+    
+    private OrcidHistoryDao orcidHistoryDao;
+    
     private ConfigurationService configurationService;
     
     private CacheManager cacheManager;
@@ -95,6 +108,7 @@ public class ApplicationService extends ExtendedTabService
      */
     public void init()
     {
+    	super.init();
         researcherPageDao = (ResearcherPageDao) getDaoByModel(ResearcherPage.class);
         projectDao = (ProjectDao) getDaoByModel(Project.class);
         organizationUnitDao = (OrganizationUnitDao) getDaoByModel(OrganizationUnit.class);
@@ -103,6 +117,8 @@ public class ApplicationService extends ExtendedTabService
         userWSDao = (UserWSDao) getDaoByModel(User.class);
         relationPreferenceDao = (RelationPreferenceDao) getDaoByModel(RelationPreference.class);
         researchDao = (DynamicObjectDao) getDaoByModel(ResearchObject.class);
+        orcidQueueDao = (OrcidQueueDao) getDaoByModel(OrcidQueue.class);
+        orcidHistoryDao = (OrcidHistoryDao) getDaoByModel(OrcidHistory.class);
         
 		if (configurationService.getPropertyAsType("cris.applicationServiceCache.enabled", true, true)
         		&& cache == null)
@@ -827,6 +843,10 @@ public class ApplicationService extends ExtendedTabService
         try
         {
         	cache.removeAll();
+			cacheRpByEPerson.removeAll();
+			cacheBySource.removeAll();
+			cacheByCrisID.removeAll();
+			cacheByUUID.removeAll();
         }
         catch (Exception ex)
         {
@@ -909,5 +929,49 @@ public class ApplicationService extends ExtendedTabService
         return researchDao.paginateByType(typo, sort, inverse, (page - 1)
                 * maxResults, maxResults);
     }
-    
+  
+    @Override
+    public <P, PK extends Serializable> void delete(Class<P> model, PK pkey) {    	
+    	super.delete(model, pkey);
+    	clearCache();
+    }
+
+	public <H extends IPropertyHolder<Containable>, T extends Tab<H>> List<T> getTabsByVisibility(Class<T> modelClass, Integer level) {	
+		TabDao<H, T> dao = (TabDao<H, T>) getDaoByModel(modelClass);
+		return dao.findByAccessLevel(level);
+	}
+	
+	public List<OrcidQueue> findOrcidQueueByResearcherId(String crisId) {
+		return orcidQueueDao.findOrcidQueueByOwner(crisId);
+	}
+	public OrcidQueue uniqueOrcidQueueByEntityIdAndTypeIdAndOwnerId(Integer entityID, Integer typeId, String ownerId) {
+		return orcidQueueDao.uniqueOrcidQueueByEntityIdAndTypeIdAndOwner(entityID, typeId, ownerId);
+	}
+	public List<OrcidHistory> findOrcidHistoryByEntityIdAndTypeId(Integer entityId, Integer typeId) {	
+		return orcidHistoryDao.findOrcidHistoryByEntityIdAndTypeId(entityId, typeId);
+	}
+
+	public void deleteOrcidQueueByOwnerAndTypeId(String crisID, int typeId) {
+		orcidQueueDao.deleteByOwnerAndTypeId(crisID, typeId);
+	}
+	
+	public void deleteOrcidQueueByOwnerAndUuid(String crisID, String uuId) {
+		orcidQueueDao.deleteByOwnerAndUuid(crisID, uuId);
+	}
+
+	public List<OrcidHistory> findOrcidHistoryByOwnerAndSuccess(String crisID) {
+		return orcidHistoryDao.findOrcidHistoryInSuccessByOwner(crisID);
+	}
+
+	public List<OrcidHistory> findOrcidHistoryInSuccessByOwnerAndType(String crisID, int type) {
+		return orcidHistoryDao.findOrcidHistoryInSuccessByOwnerAndTypeId(crisID, type);
+	}
+	
+	public OrcidHistory uniqueOrcidHistoryInSuccessByOwnerAndEntityIdAndTypeId(String crisID, int entityID, int typeID) {
+		return orcidHistoryDao.uniqueOrcidHistoryInSuccessByOwnerAndEntityIdAndTypeId(crisID, entityID, typeID);
+	}
+	
+	public OrcidHistory uniqueOrcidHistoryByOwnerAndEntityIdAndTypeId(String crisID, int entityID, int typeID) {
+		return orcidHistoryDao.uniqueOrcidHistoryByOwnerAndEntityIdAndTypeId(crisID, entityID, typeID);
+	}
 } 
