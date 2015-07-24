@@ -9,14 +9,10 @@ package org.dspace.authority.rest;
 
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.dspace.authority.util.XMLUtils;
-import org.dspace.core.ConfigurationManager;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
-import org.apache.http.HttpHost;
-import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.log4j.Logger;
-import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 
 import java.io.InputStream;
@@ -30,7 +26,7 @@ import java.util.Scanner;
  * @author Mark Diggory (markd at atmire dot com)
  */
 public class RESTConnector {
-	
+
     /**
      * log4j logger
      */
@@ -44,25 +40,12 @@ public class RESTConnector {
 
     public Document get(String path) {
         Document document = null;
-        
+
         InputStream result = null;
         path = trimSlashes(path);
 
         String fullPath = url + '/' + path;
         HttpGet httpGet = new HttpGet(fullPath);
-        
-        String proxyHost =  ConfigurationManager.getProperty("http.proxy.host");
-        int proxyPort = ConfigurationManager.getIntProperty("http.proxy.port", 80);
-        
-        if(StringUtils.isNotBlank(proxyHost)){
-        	
-	        HttpHost proxy = new HttpHost(proxyHost, proxyPort, "http");
-	        RequestConfig config = RequestConfig.custom()
-	                .setProxy(proxy)
-	                .build();
-	        httpGet.setConfig(config);
-        }
-        
         try {
             HttpClient httpClient = HttpClientBuilder.create().build();
             HttpResponse getResponse = httpClient.execute(httpGet);

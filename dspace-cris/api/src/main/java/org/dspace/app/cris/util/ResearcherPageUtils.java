@@ -7,7 +7,9 @@
  */
 package org.dspace.app.cris.util;
 
+import it.cilea.osd.jdyna.model.ADecoratorTypeDefinition;
 import it.cilea.osd.jdyna.model.ANestedObject;
+import it.cilea.osd.jdyna.model.ANestedObjectWithTypeSupport;
 import it.cilea.osd.jdyna.model.ANestedPropertiesDefinition;
 import it.cilea.osd.jdyna.model.ANestedProperty;
 import it.cilea.osd.jdyna.model.ATypeNestedObject;
@@ -355,6 +357,11 @@ return decorator.generateDisplayValue(alternativeName, rp);
         return applicationService.getNestedMaxPosition(nested);
     }
 
+    public static <P extends Property<TP>, TP extends PropertiesDefinition, NP extends ANestedProperty<NTP>, NTP extends ANestedPropertiesDefinition, ACNO extends ACrisNestedObject<NP, NTP, P, TP>, ATNO extends ATypeNestedObject<NTP>> List<ACNO> getNestedObjectsByParentIDAndShortname(Class<ACNO> modelClazz, Integer parentID, String typeShortname)
+    {    	
+    	return applicationService.getNestedObjectsByParentIDAndShortname(parentID, typeShortname, modelClazz);
+    }
+    
     public static <T extends ACrisObject> T getCrisObject(
             Integer id, Class<T> clazz)
     {
@@ -461,8 +468,8 @@ return decorator.generateDisplayValue(alternativeName, rp);
 		    								 + luceneQuery.substring(0,luceneQuery.length() - 1) + "\")";
 		    	
 		    	discoverQuery.setQuery(crisauthoritylookup);
-				String negativeFilters = "-rpsurnames:(" + luceneQuery + ")";
-				String negativeFiltersStar = "-rpsurnames:(" + luceneQuery + "*)";
+				String negativeFilters = "-rpsurnames:(" + luceneQuery.substring(0,luceneQuery.length() - 1) + ")";
+				String negativeFiltersStar = "-rpsurnames:(" + luceneQuery + ")";
 				discoverQuery.addFilterQueries(negativeFilters);
 				discoverQuery.addFilterQueries(negativeFiltersStar);
 		    	result = _searchService.search(null, discoverQuery, true);
@@ -535,7 +542,7 @@ return decorator.generateDisplayValue(alternativeName, rp);
         return names;
     }
 	   
-    private static List<String> getAbbreviations(List<NameResearcherPage> names)
+	public static List<String> getAbbreviations(List<NameResearcherPage> names)
     {
         List<String> result = new ArrayList<String>();
         for (NameResearcherPage rpn : names)
@@ -562,6 +569,16 @@ return decorator.generateDisplayValue(alternativeName, rp);
                         firstNames.add(firstname);
                     }
                 }
+				if (tmpStr.length > 1) {
+					firstNames.add(tmpStr[0]);
+					firstname = tmpStr[0] + " ";
+					for (int h = 1; h < tmpStr.length; h++) {
+						if (StringUtils.isNotBlank(tmpStr[h])) {
+							firstname += tmpStr[h].substring(0, 1);
+							firstNames.add(firstname);
+						}
+					}
+				}
                 for (int h = 0; h < tmpStr.length; h++) {
                 	if (StringUtils.isNotBlank(tmpStr[h])) {
                         firstNames.add(tmpStr[h].substring(0, 1));
@@ -607,5 +624,6 @@ return decorator.generateDisplayValue(alternativeName, rp);
         text.setOggetto(valueToSet);                 
         P prop = ro.createProprieta(pdef);
         prop.setValue(text);
+        prop.setVisibility(VisibilityConstants.PUBLIC);
 	}
 }
