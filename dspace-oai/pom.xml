@@ -82,6 +82,8 @@
     </profiles>
 
     <dependencies>
+           
+    
         <!-- OAI Data Provider Framework -->
         <dependency>
             <groupId>org.dspace</groupId>
@@ -136,7 +138,21 @@
         <!-- Internal -->
         <dependency>
             <groupId>org.dspace</groupId>
+            <artifactId>dspace-cris-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.dspace</groupId>
             <artifactId>dspace-api</artifactId>
+            <exclusions>
+            	<exclusion>
+            		<groupId>net.sf.ehcache</groupId>
+            		<artifactId>ehcache-core</artifactId>
+            	</exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.dspace</groupId>
+            <artifactId>dspace-cris-jspui-api</artifactId>
         </dependency>
 
         <!-- Solr (Datasource) -->

@@ -100,6 +100,14 @@
         </dependency>
 
         <!-- Use DSpace, for now, an older version to minimize spring generated dependency on Discovery -->
+       <dependency>
+            <groupId>org.dspace</groupId>
+            <artifactId>dspace-cris-jspui-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.dspace</groupId>
+            <artifactId>dspace-cris-api</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.dspace</groupId>
             <artifactId>dspace-api</artifactId>
@@ -132,6 +140,12 @@
         <dependency>
             <groupId>org.dspace</groupId>
             <artifactId>dspace-services</artifactId>
+            <exclusions>
+            	<exclusion>
+            		<groupId>net.sf.ehcache</groupId>
+            		<artifactId>ehcache-core</artifactId>
+            	</exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 </project>
