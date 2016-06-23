@@ -183,7 +183,7 @@ public class SolrImportExport
 
 	private static Options makeOptions() {
 		Options options = new Options();
-		options.addOption(ACTION_OPTION, "action", true, "The action to perform: import, export or reindex. Default: export.");
+		options.addOption(ACTION_OPTION, "action", true, "The action to perform: import, export, generate or reindex. Default: export.");
 		options.addOption(CLEAR_OPTION, "clear", false, "When importing, also clear the index first. Ignored when action is export or reindex.");
 		options.addOption(DIRECTORY_OPTION, "directory", true,
 				                 "The absolute path for the directory to use for import or export. If omitted, [dspace]/solr-export is used.");
